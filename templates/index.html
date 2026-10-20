@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text & Text-to-Speech System | BCA College Project</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-light text-dark">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#">
+                <i class="bi bi-soundwave fs-3"></i>
+                <span>VoiceFlow System</span>
+            </a>
+            <span class="badge bg-light text-primary d-none d-md-inline-block px-3 py-2 rounded-pill fw-semibold">
+                BCA Final Project &bull; AI / Speech Processing
+            </span>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 d-flex align-items-center gap-1" id="system-status-pill">
+                    <span class="status-dot"></span> System Ready
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-section text-center py-4 bg-white border-bottom shadow-sm">
+        <div class="container">
+            <h1 class="display-6 fw-bold text-primary mb-2">Speech-to-Text & Text-to-Speech System</h1>
+            <p class="lead text-secondary mb-3 fs-6">
+                A dual-directional voice processing application featuring Pretrained Speech Recognition (ASR), Offline Voice Synthesis (TTS), and Word Error Rate (WER) Accuracy Evaluation.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+                    <i class="bi bi-mic me-1"></i> STT: Google Speech Recognition (Online Pretrained)
+                </span>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-2 rounded-pill">
+                    <i class="bi bi-volume-up me-1"></i> TTS: pyttsx3 / Windows SAPI5 (100% Offline)
+                </span>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Evaluation: Levenshtein Word Error Rate (WER)
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container my-4">
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills nav-fill bg-white p-2 rounded-3 shadow-sm border mb-4" id="projectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold d-flex align-items-center justify-content-center gap-2 py-2" id="stt-tab" data-bs-toggle="tab" data-bs-target="#stt-pane" type="button" role="tab">
+                    <i class="bi bi-mic-fill fs-5 text-primary"></i> Speech-to-Text (STT)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold d-flex align-items-center justify-content-center gap-2 py-2" id="tts-tab" data-bs-toggle="tab" data-bs-target="#tts-pane" type="button" role="tab">
+                    <i class="bi bi-megaphone-fill fs-5 text-success"></i> Text-to-Speech (TTS)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold d-flex align-items-center justify-content-center gap-2 py-2" id="wer-tab" data-bs-toggle="tab" data-bs-target="#wer-pane" type="button" role="tab">
+                    <i class="bi bi-calculator-fill fs-5 text-warning"></i> AI/ML WER Evaluation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold d-flex align-items-center justify-content-center gap-2 py-2" id="about-tab" data-bs-toggle="tab" data-bs-target="#about-pane" type="button" role="tab">
+                    <i class="bi bi-diagram-3-fill fs-5 text-info"></i> Architecture & Info
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold d-flex align-items-center justify-content-center gap-2 py-2" id="viva-tab" data-bs-toggle="tab" data-bs-target="#viva-pane" type="button" role="tab">
+                    <i class="bi bi-mortarboard-fill fs-5 text-secondary"></i> Viva Prep & FAQs
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Panes Content -->
+        <div class="tab-content" id="projectTabsContent">
+
+            <!-- ========================================== -->
+            <!-- 1. SPEECH-TO-TEXT (STT) TAB -->
+            <!-- ========================================== -->
+            <div class="tab-pane fade show active" id="stt-pane" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Left Column: Audio Input Source -->
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h5 class="card-title fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                                    <i class="bi bi-record-circle text-danger"></i> Audio Input Source
+                                </h5>
+                                <small class="text-muted">Choose file upload or live microphone</small>
+                            </div>
+                            <div class="card-body">
+                                <!-- Mode Selector: File Upload vs Microphone -->
+                                <div class="btn-group w-100 mb-3" role="group">
+                                    <input type="radio" class="btn-check" name="sttMode" id="sttModeUpload" autocomplete="off" checked>
+                                    <label class="btn btn-outline-primary fw-semibold" for="sttModeUpload">
+                                        <i class="bi bi-file-earmark-music me-1"></i> Upload WAV File
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="sttMode" id="sttModeMic" autocomplete="off">
+                                    <label class="btn btn-outline-primary fw-semibold" for="sttModeMic">
+                                        <i class="bi bi-mic me-1"></i> Live Microphone
+                                    </label>
+                                </div>
+
+                                <!-- Option A: File Upload Area -->
+                                <div id="uploadContainer" class="stt-mode-section">
+                                    <div class="drop-zone border border-2 border-primary border-dashed rounded-3 p-4 text-center bg-light cursor-pointer" id="audioDropZone">
+                                        <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
+                                        <h6 class="fw-bold mb-1">Click to select audio or drag & drop</h6>
+                                        <p class="text-muted small mb-2">Supports standard uncompressed <code>.wav</code> (PCM 16-bit)</p>
+                                        <span class="badge bg-secondary-subtle text-secondary">Max size: 16 MB</span>
+                                        <input type="file" id="audioFileInput" class="d-none" accept=".wav,audio/wav">
+                                    </div>
+                                    <div id="fileDetails" class="alert alert-info py-2 px-3 mt-3 d-none align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                            <i class="bi bi-file-music fs-4 text-primary"></i>
+                                            <div class="text-truncate">
+                                                <strong id="selectedFileName" class="d-block text-truncate">audio.wav</strong>
+                                                <small id="selectedFileSize" class="text-muted">0 KB</small>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" id="btnRemoveFile" title="Remove file">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Option B: Live Microphone Recording Area -->
+                                <div id="micContainer" class="stt-mode-section d-none">
+                                    <div class="text-center p-4 border rounded-3 bg-light">
+                                        <div class="recording-visualizer mb-3" id="recordingVisualizer">
+                                            <div class="pulse-ring"></div>
+                                            <i class="bi bi-mic-fill fs-1 text-danger"></i>
+                                        </div>
+                                        <h5 id="recordingTimer" class="fw-bold font-monospace text-secondary mb-2">00:00</h5>
+                                        <p id="recordingStatusText" class="text-muted small mb-3">Click Start Recording to speak via your microphone.</p>
+
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button" class="btn btn-danger fw-semibold px-4" id="btnStartRecord">
+                                                <i class="bi bi-record-circle me-1"></i> Start Recording
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary fw-semibold px-4 d-none" id="btnStopRecord">
+                                                <i class="bi bi-stop-circle me-1"></i> Stop Recording
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Audio Player Preview (if loaded/recorded) -->
+                                <div id="audioPreviewContainer" class="mt-3 d-none">
+                                    <label class="form-label small fw-bold text-muted">Audio Preview:</label>
+                                    <audio id="audioPreviewPlayer" controls class="w-100 rounded-2"></audio>
+                                </div>
+
+                                <!-- Process Button -->
+                                <div class="mt-4">
+                                    <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" id="btnTranscribe">
+                                        <i class="bi bi-gear-wide-connected"></i>
+                                        <span>Convert Audio to Text</span>
+                                    </button>
+                                </div>
+
+                                <div class="alert alert-light border small text-muted mt-3 mb-0">
+                                    <i class="bi bi-info-circle text-primary me-1"></i>
+                                    <strong>How it works:</strong> The audio is captured or uploaded in standard WAV format and sent to the Flask server, which performs inference using the SpeechRecognition engine. Requires active internet for Google ASR.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Transcription Output -->
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title fw-bold text-primary mb-0">
+                                        <i class="bi bi-card-text text-primary"></i> Recognized Transcription
+                                    </h5>
+                                    <small class="text-muted">Edit or copy recognized speech text</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary" id="btnCopyTranscription" title="Copy Text to Clipboard">
+                                        <i class="bi bi-clipboard me-1"></i> Copy
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" id="btnClearTranscription" title="Clear Area">
+                                        <i class="bi bi-trash me-1"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+
+                                <!-- Loading Indicator -->
+                                <div id="sttLoading" class="text-center py-5 d-none">
+                                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3 fw-bold text-primary mb-1">Transcribing Audio...</p>
+                                    <small class="text-muted">Connecting to Speech Recognition engine and running acoustic inference...</small>
+                                </div>
+
+                                <!-- Output Textarea -->
+                                <div id="sttOutputArea" class="flex-grow-1 d-flex flex-column">
+                                    <textarea id="transcriptionText" class="form-control flex-grow-1 font-monospace p-3 mb-2" rows="10" placeholder="Recognized speech text will appear here. You can also edit this text manually..."></textarea>
+                                    <div class="d-flex justify-content-between align-items-center text-muted small px-1 mb-3">
+                                        <span id="sttStats">Characters: 0 | Words: 0</span>
+                                        <span id="sttDurationBadge" class="badge bg-secondary-subtle text-secondary d-none">Duration: 0.0s</span>
+                                    </div>
+
+                                    <!-- Quick College Workflow Actions -->
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <h6 class="fw-bold text-secondary mb-2 small text-uppercase">
+                                            <i class="bi bi-arrow-left-right me-1"></i> Cross-Module Workflows
+                                        </h6>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-sm btn-outline-success fw-semibold" id="btnSendToTTS">
+                                                <i class="bi bi-megaphone me-1"></i> Send Text to TTS (Speak It Back)
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning fw-semibold text-dark" id="btnSendToWER">
+                                                <i class="bi bi-calculator me-1"></i> Send to AI/ML WER Evaluator
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Alerts / Status -->
+                                <div id="sttAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 2. TEXT-TO-SPEECH (TTS) TAB -->
+            <!-- ========================================== -->
+            <div class="tab-pane fade" id="tts-pane" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Left Column: Text Input & Presets -->
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title fw-bold text-success mb-0">
+                                        <i class="bi bi-pencil-square text-success"></i> Text Input
+                                    </h5>
+                                    <small class="text-muted">Type or paste text to synthesize into spoken audio</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary" id="btnClearTTS" title="Clear Text">
+                                        <i class="bi bi-trash me-1"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+
+                                <!-- Quick Presets for Demo -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Quick Demo Presets for College Presentation:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-text="Welcome professors and examiners to our BCA college project presentation on Speech to Text and Text to Speech Conversion System.">
+                                            College Intro
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-text="The quick brown fox jumps over the lazy dog. Speech synthesis converts text tokens into acoustic speech waveforms.">
+                                            Pangram Test
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-info preset-btn" data-text="Word Error Rate is an industry standard metric computed using Levenshtein distance to evaluate automatic speech recognition accuracy.">
+                                            AI/ML Concept
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Textarea -->
+                                <textarea id="ttsTextInput" class="form-control flex-grow-1 p-3 mb-2" rows="8" maxlength="5000" placeholder="Type or paste text here (up to 5,000 characters)..."></textarea>
+                                <div class="d-flex justify-content-between text-muted small px-1 mb-3">
+                                    <span id="ttsCharCount">Characters: 0 / 5000</span>
+                                    <span id="ttsWordCount">Words: 0</span>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex gap-2 mt-auto">
+                                    <button type="button" class="btn btn-success btn-lg flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" id="btnSynthesize">
+                                        <i class="bi bi-volume-up-fill"></i>
+                                        <span>Convert to Speech</span>
+                                    </button>
+                                </div>
+
+                                <div id="ttsAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Voice Settings & Audio Output -->
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h5 class="card-title fw-bold text-success mb-0">
+                                    <i class="bi bi-sliders text-success"></i> Speech Synthesis Controls
+                                </h5>
+                                <small class="text-muted">Configure voice properties & engine</small>
+                            </div>
+                            <div class="card-body">
+                                <!-- Engine Selection Mode -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Synthesis Engine:</label>
+                                    <select id="ttsEngineSelect" class="form-select">
+                                        <option value="pyttsx3" selected>Python pyttsx3 (Offline Windows SAPI5 - Recommended)</option>
+                                        <option value="browser">Browser Web SpeechSynthesis (Client Fallback)</option>
+                                    </select>
+                                    <div class="form-text small" id="engineNotice">
+                                        pyttsx3 runs 100% offline on Windows using the SAPI5 speech engine.
+                                    </div>
+                                </div>
+
+                                <!-- Voice Selection -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Voice Profile:</label>
+                                    <select id="ttsVoiceSelect" class="form-select">
+                                        <option value="">Default System Voice</option>
+                                    </select>
+                                </div>
+
+                                <!-- Speech Rate (Speed) -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold text-muted mb-0">Speech Rate (Speed):</label>
+                                        <span id="speechRateValue" class="badge bg-secondary-subtle text-secondary">150 WPM (Normal)</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="speechRateRange" min="75" max="250" step="5" value="150">
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Slow (75)</span>
+                                        <span>Normal (150)</span>
+                                        <span>Fast (250)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Volume Control -->
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold text-muted mb-0">Volume:</label>
+                                        <span id="speechVolumeValue" class="badge bg-secondary-subtle text-secondary">100%</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="speechVolumeRange" min="0" max="1" step="0.1" value="1.0">
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-2" id="btnResetTTSControls">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Settings to Default
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Audio Playback & Download Card -->
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h6 class="card-title fw-bold text-primary mb-0">
+                                    <i class="bi bi-file-earmark-play text-primary"></i> Audio Output & Download
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <!-- TTS Loading Spinner -->
+                                <div id="ttsLoading" class="text-center py-4 d-none">
+                                    <div class="spinner-border text-success" role="status"></div>
+                                    <p class="mt-2 fw-semibold text-success small mb-0">Synthesizing audio file...</p>
+                                </div>
+
+                                <!-- Audio Player -->
+                                <div id="ttsPlayerContainer" class="text-center">
+                                    <audio id="ttsAudioPlayer" controls class="w-100 mb-3"></audio>
+
+                                    <div class="d-flex justify-content-between text-muted small mb-3">
+                                        <span id="ttsGeneratedSize">File Size: --</span>
+                                        <span id="ttsGeneratedStatus">Status: Ready</span>
+                                    </div>
+
+                                    <a id="btnDownloadTTS" href="#" download="synthesized_speech.wav" class="btn btn-outline-primary w-100 fw-semibold disabled">
+                                        <i class="bi bi-download me-1"></i> Download Audio (.wav)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 3. AI/ML EVALUATION (WER) TAB -->
+            <!-- ========================================== -->
+            <div class="tab-pane fade" id="wer-pane" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-cpu-fill fs-4"></i>
+                            <div>
+                                <h5 class="card-title fw-bold mb-0">AI / ML Evaluation: Word Error Rate (WER)</h5>
+                                <small class="text-white-50">Quantitative performance evaluation for Speech Recognition without external datasets</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Educational Alert for Viva -->
+                        <div class="alert alert-info border-info-subtle d-flex gap-3 align-items-start">
+                            <i class="bi bi-lightbulb-fill text-info fs-3"></i>
+                            <div class="small">
+                                <strong>Why Word Error Rate (WER) in this BCA Project?</strong><br>
+                                Building or training an enterprise speech recognition neural network requires hundreds of gigabytes of audio datasets and heavy GPU training clusters. In this project, we utilize a <em>pretrained ASR model for inference</em> and implement the <strong>Word Error Rate (WER)</strong> metric using the <strong>Levenshtein Dynamic Programming Algorithm</strong>. This mathematically evaluates how accurately the speech was recognized compared against the known reference speech transcript.
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- Reference (Ground Truth) -->
+                            <div class="col-md-6">
+                                <label for="werReferenceText" class="form-label fw-bold text-secondary">
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Reference Text (Ground Truth / What was actually spoken):
+                                </label>
+                                <textarea id="werReferenceText" class="form-control" rows="5" placeholder="Example: the quick brown fox jumps over the lazy dog"></textarea>
+                            </div>
+
+                            <!-- Hypothesis (Recognized Text) -->
+                            <div class="col-md-6">
+                                <label for="werHypothesisText" class="form-label fw-bold text-secondary">
+                                    <i class="bi bi-mic-fill text-primary me-1"></i> Recognized Text (Hypothesis / Model Transcription Output):
+                                </label>
+                                <textarea id="werHypothesisText" class="form-control" rows="5" placeholder="Example: the fast brown fox jumps over a lazy dog"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Controls -->
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnWerSample">
+                                <i class="bi bi-magic me-1"></i> Load Sample Comparison
+                            </button>
+                            <button type="button" class="btn btn-warning fw-bold px-4 text-dark shadow-sm" id="btnCalculateWER">
+                                <i class="bi bi-calculator me-1"></i> Calculate WER & Accuracy
+                            </button>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div id="werResultsArea" class="mt-4 pt-3 border-top d-none">
+                            <h5 class="fw-bold text-dark mb-3">Evaluation Results & Metrics</h5>
+
+                            <div class="row g-3 mb-4">
+                                <!-- WER Score Card -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card h-100 border text-center p-3 rounded-3 shadow-xs">
+                                        <small class="text-muted fw-bold text-uppercase">Word Error Rate (WER)</small>
+                                        <h2 class="display-6 fw-bold my-2" id="werValue">0.0%</h2>
+                                        <span id="werBadge" class="badge bg-success mx-auto px-3 py-1">Excellent Accuracy</span>
+                                    </div>
+                                </div>
+
+                                <!-- Accuracy Card -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card h-100 border text-center p-3 rounded-3 shadow-xs">
+                                        <small class="text-muted fw-bold text-uppercase">Recognition Accuracy</small>
+                                        <h2 class="display-6 fw-bold my-2 text-primary" id="werAccuracyValue">100.0%</h2>
+                                        <small class="text-muted">Formula: (1 - WER) &times; 100%</small>
+                                    </div>
+                                </div>
+
+                                <!-- Error Breakdown Card -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card h-100 border p-3 rounded-3 shadow-xs">
+                                        <small class="text-muted fw-bold text-uppercase text-center d-block mb-2">Error Types</small>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span><i class="bi bi-arrow-repeat text-warning me-1"></i> Substitutions (S):</span>
+                                            <strong id="werSubstitutions">0</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span><i class="bi bi-x-circle text-danger me-1"></i> Deletions (D):</span>
+                                            <strong id="werDeletions">0</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span><i class="bi bi-plus-circle text-info me-1"></i> Insertions (I):</span>
+                                            <strong id="werInsertions">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Word Count Statistics -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card h-100 border p-3 rounded-3 shadow-xs">
+                                        <small class="text-muted fw-bold text-uppercase text-center d-block mb-2">Word Statistics</small>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span><i class="bi bi-check-lg text-success me-1"></i> Correct Words (C):</span>
+                                            <strong id="werCorrect">0</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Reference Words (N):</span>
+                                            <strong id="werRefWords">0</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span>Recognized Words:</span>
+                                            <strong id="werHypWords">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Calculation Mathematical Formula Box -->
+                            <div class="card bg-light border p-3 rounded-3">
+                                <h6 class="fw-bold text-secondary mb-1">Mathematical Formula:</h6>
+                                <p class="font-monospace text-dark mb-1">
+                                    WER = (Substitutions + Deletions + Insertions) / Total Reference Words
+                                </p>
+                                <p class="small text-muted mb-0" id="werFormulaCalculation">
+                                    WER = (0 + 0 + 0) / 0 = 0.0%
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 4. ABOUT & ARCHITECTURE TAB -->
+            <!-- ========================================== -->
+            <div class="tab-pane fade" id="about-pane" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title fw-bold text-primary mb-0">System Architecture & Technical Design</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <h6 class="fw-bold text-dark border-bottom pb-2">1. System Workflow & Data Pipeline</h6>
+                                <div class="p-3 bg-light rounded-3 font-monospace small mb-3 border">
+                                    <strong>Speech-to-Text (STT) Flow:</strong><br>
+                                    [Microphone / WAV File]<br>
+                                    &nbsp;&nbsp;&darr; (16-bit PCM Audio Validation)<br>
+                                    [Flask POST /api/speech-to-text]<br>
+                                    &nbsp;&nbsp;&darr; (Acoustic Feature Extraction)<br>
+                                    [Google Speech Recognition Cloud Engine]<br>
+                                    &nbsp;&nbsp;&darr; (Language Model Decoding)<br>
+                                    [Recognized UTF-8 Text Output]<br><br>
+
+                                    <strong>Text-to-Speech (TTS) Flow:</strong><br>
+                                    [User Text Input]<br>
+                                    &nbsp;&nbsp;&darr; (Text Normalization & Tokenization)<br>
+                                    [Flask POST /api/text-to-speech]<br>
+                                    &nbsp;&nbsp;&darr; (Phoneme to Acoustic Waveform)<br>
+                                    [pyttsx3 Offline Windows SAPI5 Engine]<br>
+                                    &nbsp;&nbsp;&darr; (Base64 WAV Stream)<br>
+                                    [Browser HTML5 Audio Player / WAV Download]
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <h6 class="fw-bold text-dark border-bottom pb-2">2. Offline vs. Online Capabilities</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle small">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Module</th>
+                                                <th>Engine / Library</th>
+                                                <th>Internet Required?</th>
+                                                <th>Offline Fallback?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold">Speech-to-Text</td>
+                                                <td>SpeechRecognition (Google ASR)</td>
+                                                <td><span class="badge bg-warning text-dark">Yes (Online)</span></td>
+                                                <td>Vosk / PocketSphinx can be plugged in for full offline</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Text-to-Speech</td>
+                                                <td>pyttsx3 (Windows SAPI5)</td>
+                                                <td><span class="badge bg-success">No (100% Offline)</span></td>
+                                                <td>Native Windows built-in voices</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Fallback TTS</td>
+                                                <td>Web SpeechSynthesis API</td>
+                                                <td><span class="badge bg-success">No (Client Offline)</span></td>
+                                                <td>Executes directly inside browser</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">WER Evaluator</td>
+                                                <td>Levenshtein DP Algorithm</td>
+                                                <td><span class="badge bg-success">No (100% Offline)</span></td>
+                                                <td>Pure Python algorithmic computation</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="border p-3 rounded-3 h-100 bg-white">
+                                    <h6 class="fw-bold text-primary"><i class="bi bi-layers me-1"></i> Technology Stack</h6>
+                                    <ul class="small mb-0 ps-3">
+                                        <li><strong>Backend:</strong> Python 3.13, Flask 3.1</li>
+                                        <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (ES6+), Bootstrap 5</li>
+                                        <li><strong>Audio Capture:</strong> Web Audio API (PCM WAV encoding)</li>
+                                        <li><strong>TTS:</strong> pyttsx3, pythoncom (SAPI5 COM)</li>
+                                        <li><strong>Testing:</strong> pytest</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border p-3 rounded-3 h-100 bg-white">
+                                    <h6 class="fw-bold text-success"><i class="bi bi-shield-check me-1"></i> Security & Integrity</h6>
+                                    <ul class="small mb-0 ps-3">
+                                        <li>Strict file-type validation (.wav only)</li>
+                                        <li>16MB request payload limit</li>
+                                        <li>Immediate temporary file deletion</li>
+                                        <li>No stored user voice recordings</li>
+                                        <li>No API keys exposed to frontend</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border p-3 rounded-3 h-100 bg-white">
+                                    <h6 class="fw-bold text-info"><i class="bi bi-lightbulb me-1"></i> Project Highlights</h6>
+                                    <ul class="small mb-0 ps-3">
+                                        <li>Zero external datasets needed</li>
+                                        <li>Runs natively on standard Windows laptops</li>
+                                        <li>Interactive audio playback & download</li>
+                                        <li>Academic evaluation with WER breakdown</li>
+                                        <li>Dual synthesis engines (Server + Browser)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 5. VIVA PREPARATION & FAQS TAB -->
+            <!-- ========================================== -->
+            <div class="tab-pane fade" id="viva-pane" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title fw-bold text-dark mb-0">
+                                    <i class="bi bi-mortarboard-fill text-primary me-2"></i> Viva Voce & Presentation Questions
+                                </h5>
+                                <small class="text-muted">Top questions frequently asked by external college examiners with beginner-friendly answers</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill px-3 py-2">20 Prepared Questions</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion accordion-flush" id="vivaAccordion">
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva1">
+                                        Q1: What is the primary objective of this project?
+                                    </button>
+                                </h2>
+                                <div id="viva1" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> The primary objective is to create an integrated, accessible web application that provides two-way voice processing: converting spoken audio into editable digital text (Speech-to-Text), and synthesizing written text into natural human speech audio (Text-to-Speech), supplemented with quantitative Word Error Rate (WER) evaluation.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva2">
+                                        Q2: Did you train your own AI/ML model for speech recognition?
+                                    </button>
+                                </h2>
+                                <div id="viva2" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> No. Training a modern speech recognition model from scratch requires thousands of hours of transcribed audio, massive datasets, and high-performance GPU clusters. Instead, our project implements <strong>pretrained model inference</strong> using Google's ASR engine via the Python <code>SpeechRecognition</code> library. We evaluate inference quality using Word Error Rate (WER).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva3">
+                                        Q3: How does pyttsx3 generate speech without an internet connection?
+                                    </button>
+                                </h2>
+                                <div id="viva3" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> <code>pyttsx3</code> is a Python wrapper around the host operating system's native speech synthesis engine. On Microsoft Windows, it directly invokes the <strong>SAPI5 (Speech Application Programming Interface)</strong> subsystem and the local voices installed in Windows (such as Microsoft David, Zira, or Mark). Because SAPI5 runs locally on Windows, it requires zero internet connectivity.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva4">
+                                        Q4: What is Word Error Rate (WER) and how is it calculated?
+                                    </button>
+                                </h2>
+                                <div id="viva4" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> WER is the standard metric for measuring the performance of an Automatic Speech Recognition (ASR) system. It is calculated as:
+                                        <code>WER = (S + D + I) / N</code>, where <strong>S</strong> is the number of substitutions, <strong>D</strong> is deletions, <strong>I</strong> is insertions, and <strong>N</strong> is the total number of words in the ground truth reference text. It is computed via the Levenshtein dynamic programming algorithm at the word level.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva5">
+                                        Q5: Why did you choose the WAV format over MP3 for speech processing?
+                                    </button>
+                                </h2>
+                                <div id="viva5" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> WAV is an uncompressed or lossless audio container that stores raw Pulse-Code Modulation (PCM) samples. Python's built-in standard library <code>wave</code> and <code>speech_recognition</code> natively support PCM WAV without requiring third-party external codecs like FFmpeg or LAME. MP3 uses lossy compression and requires external decoding libraries that may not be available on standard Windows machines.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva6">
+                                        Q6: How does the application record audio from the user's microphone?
+                                    </button>
+                                </h2>
+                                <div id="viva6" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> The browser uses the HTML5 <code>navigator.mediaDevices.getUserMedia()</code> API and Web Audio API (<code>AudioContext</code>). The client-side JavaScript captures raw audio samples and encodes them into a standard 16-bit PCM WAV Blob in memory before transmitting it to the Flask backend via <code>multipart/form-data</code>.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva7">
+                                        Q7: Why does the system need pythoncom.CoInitialize() on Windows?
+                                    </button>
+                                </h2>
+                                <div id="viva7" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> Windows SAPI5 uses Microsoft Component Object Model (COM). In Flask, each incoming HTTP request is handled in a separate worker thread. SAPI5 requires the COM apartment to be initialized on each thread using <code>pythoncom.CoInitialize()</code> and cleaned up using <code>pythoncom.CoUninitialize()</code> to prevent threading race conditions or COM initialization errors.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#viva8">
+                                        Q8: Can WER be greater than 100%?
+                                    </button>
+                                </h2>
+                                <div id="viva8" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                                    <div class="accordion-body text-secondary small">
+                                        <strong>Answer:</strong> Yes! If the recognized text contains a large number of inserted words (for example, reference has 2 words but hypothesis has 5 words), <code>(S + D + I) / N</code> can exceed 1.0 (100%). In our application, accuracy is safely bounded at <code>max(0.0, (1 - WER)) * 100%</code>.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-3 text-center text-muted small mt-5">
+        <div class="container">
+            <p class="mb-1">&copy; 2026 Speech-to-Text & Text-to-Speech Conversion System &bull; BCA College Project</p>
+            <p class="mb-0 text-secondary">Built with Python, Flask, pyttsx3, SpeechRecognition, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

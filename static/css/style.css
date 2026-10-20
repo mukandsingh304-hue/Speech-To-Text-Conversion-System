@@ -1,0 +1,149 @@
+/* VoiceFlow Speech Converter - Modern Blue & White Theme */
+
+:root {
+    --primary-blue: #1d4ed8;
+    --primary-hover: #1e40af;
+    --primary-light: #eff6ff;
+    --accent-blue: #3b82f6;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background-color: #f8fafc;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Status indicator dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    animation: status-pulse 2s infinite;
+}
+
+@keyframes status-pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+/* Nav Pills Styling */
+.nav-pills .nav-link {
+    color: #475569;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-blue);
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
+}
+
+.nav-pills .nav-link.active i {
+    color: #ffffff !important;
+}
+
+/* Cards */
+.card {
+    transition: box-shadow 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.card:hover {
+    box-shadow: var(--card-shadow-hover);
+}
+
+/* Drop Zone */
+.drop-zone {
+    border-style: dashed !important;
+    border-color: #93c5fd !important;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    background-color: #eff6ff;
+    border-color: var(--primary-blue) !important;
+    transform: translateY(-1px);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Recording Visualizer & Pulse */
+.recording-visualizer {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #fee2e2;
+}
+
+.recording-visualizer.recording .pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #ef4444;
+    animation: mic-pulse 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes mic-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.35); opacity: 0.4; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Audio Player */
+audio {
+    outline: none;
+}
+
+/* Form Controls */
+textarea.form-control {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    border-color: var(--border-color);
+}
+
+textarea.form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+}
+
+/* Accordion */
+.accordion-button:not(.collapsed) {
+    background-color: #eff6ff;
+    color: var(--primary-blue);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+}
