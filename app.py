@@ -387,41 +387,54 @@ def text_to_speech():
         pythoncom.CoInitialize()
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-            temp_wav_path = temp_file.name
+        # Step 1: Attempt offline pyttsx3 synthesis
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                temp_wav_path = temp_file.name
 
-        # Initialize pyttsx3 engine
-        engine = pyttsx3.init()
-        engine.setProperty("rate", rate)
-        engine.setProperty("volume", volume)
+            # On Windows, explicitly request sapi5 driver
+            if os.name == "nt":
+                engine = pyttsx3.init("sapi5")
+            else:
+                engine = pyttsx3.init()
 
-        if voice_id:
-            try:
-                engine.setProperty("voice", voice_id)
-            except Exception as vexc:
-                logger.warning("Could not set voice %s: %s", voice_id, vexc)
+            engine.setProperty("rate", rate)
+            engine.setProperty("volume", volume)
 
-        # Synthesize text directly to temporary WAV file
-        engine.save_to_file(text, temp_wav_path)
-        engine.runAndWait()
-        engine.stop()
+            if voice_id:
+                try:
+                    engine.setProperty("voice", voice_id)
+                except Exception as vexc:
+                    logger.warning("Could not set voice %s: %s", voice_id, vexc)
 
-        if not os.path.exists(temp_wav_path) or os.path.getsize(temp_wav_path) == 0:
-            return jsonify({
-                "success": False,
-                "error": "The speech engine failed to generate an audio output file. Please try browser synthesis fallback."
-            }), 500
+            engine.save_to_file(text, temp_wav_path)
+            engine.runAndWait()
+            engine.stop()
 
-        # Read generated audio file and encode as base64
-        with open(temp_wav_path, "rb") as f:
-            audio_bytes = f.read()
+            if not os.path.exists(temp_wav_path) or os.path.getsize(temp_wav_path) == 0:
+                raise RuntimeError("pyttsx3 generated empty audio file")
 
-        base64_audio = base64.b64encode(audio_bytes).decode("utf-8")
-        data_url = f"data:audio/wav;base64,{base64_audio}"
+            with open(temp_wav_path, "rb") as f:
+                audio_bytes = f.read()
+
+            base64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+            data_url = f"data:audio/wav;base64,{base64_audio}"
+            engine_name = "pyttsx3 (Offline Windows SAPI5)" if os.name == "nt" else "pyttsx3 (Linux eSpeak)"
+
+        except Exception as pyttsx3_err:
+            logger.warning("pyttsx3 failed (%s). Falling back to gTTS...", pyttsx3_err)
+            # Step 2: Automatic fallback to gTTS (Google Text-to-Speech)
+            from gtts import gTTS
+            tts = gTTS(text=text, lang="en")
+            bio = io.BytesIO()
+            tts.write_to_fp(bio)
+            audio_bytes = bio.getvalue()
+            base64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+            data_url = f"data:audio/mp3;base64,{base64_audio}"
+            engine_name = "gTTS (Google Speech Engine Fallback)"
 
         word_count = len(text.split())
-
-        logger.info("Successfully synthesized text (%d words, %d bytes)", word_count, len(audio_bytes))
+        logger.info("Successfully synthesized text (%d words, %d bytes) via %s", word_count, len(audio_bytes), engine_name)
 
         return jsonify({
             "success": True,
@@ -429,7 +442,7 @@ def text_to_speech():
             "file_size": len(audio_bytes),
             "word_count": word_count,
             "char_count": len(text),
-            "engine": "pyttsx3 (Offline Windows SAPI5)",
+            "engine": engine_name,
             "rate": rate,
             "volume": volume
         }), 200
